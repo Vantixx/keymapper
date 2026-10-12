@@ -22,22 +22,27 @@ jobs:
           [ -f MainActivity.kt ] && mv MainActivity.kt app/src/main/java/com/example/keymapper/
           [ -f key.kt ] && mv key.kt app/src/main/java/com/example/keymapper/
           
-          cat << 'EOF' > build.gradle
-          buildscript {
-              repositories { google(); mavenCentral() }
-              dependencies { 
-                  classpath 'com.android.tools.build:gradle:8.1.1'
-                  classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0"
+          cat << 'EOF' > settings.gradle
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
               }
           }
-          allprojects {
-              repositories { google(); mavenCentral() }
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+              }
           }
-          EOF
-
-          cat << 'EOF' > settings.gradle
           rootProject.name = "Keymapper"
           include ':app'
+          EOF
+
+          cat << 'EOF' > build.gradle
+          // Top-level build file
           EOF
 
           cat << 'EOF' > app/build.gradle
@@ -55,6 +60,9 @@ jobs:
                   versionCode 1
                   versionName "1.0"
               }
+          }
+          dependencies {
+              implementation 'androidx.core:core-ktx:1.12.0'
           }
           EOF
 
