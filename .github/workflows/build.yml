@@ -15,13 +15,9 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Build Project Structure
+      - name: Create Android Project Files
         run: |
           mkdir -p app/src/main/java/com/example/keymapper
-          mkdir -p app/src/main/res
           [ -f AndroidManifest.xml ] && mv AndroidManifest.xml app/src/main/
           [ -f MainActivity.kt ] && mv MainActivity.kt app/src/main/java/com/example/keymapper/
           [ -f key.kt ] && mv key.kt app/src/main/java/com/example/keymapper/
@@ -53,19 +49,21 @@ jobs:
                   applicationId "com.example.keymapper"
                   minSdk 24
                   targetSdk 34
-                  versionCode 1
-                  versionName "1.0"
               }
           }
           EOF
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
 
-      - name: Build APK with Gradle
-        run: gradle assembleDebug
+      - name: Build APK
+        run: |
+          export ANDROID_HOME=$ANDROID_HOME
+          # تنزيل حزم الأداة اللازمة للبناء بشكل مباشر وصحيح
+          sdkmanager "platforms;android-34" "build-tools;34.0.0" > /dev/null
+          yes | sdkmanager --licenses > /dev/null || true
+          ./gradlew assembleDebug --no-daemon
 
-      - name: Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Keymapper-APK
